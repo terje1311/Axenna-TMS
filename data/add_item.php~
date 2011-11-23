@@ -1,0 +1,75 @@
+<?php
+session_start();
+if(!isset($_SESSION['userID'])) { // check if user is logged in
+header("Location: ../login.php; Window-target: top");
+}
+
+require_once "db.php";
+require_once "../lang/".$_SESSION['lang'].".php";
+
+$itemType = $_GET['itemType'];
+
+$query = "SHOW FIELDS FROM `".$itemType."`";
+if (!$Result= mysql_db_query($DBName, $query, $Link)) {
+         	print "No database connection <br>".mysql_error();
+    } 
+
+?>
+<center>
+<table summary="">
+<tr>
+<th> </th>
+</tr>
+<?php
+$i=0;
+while($Row=MySQL_fetch_array($Result)) {
+if($i>0) {	
+?>
+<tr>
+<td><?php print $LANG[$Row[0]];?>: </td>
+<td>
+<?php 
+if(strstr($Row[1], "text") ) {
+?>
+<textarea style="width:300px;height:100px" name="<?php print $Row[0];?>" id="<?php print $Row[0];?>">
+</textarea>
+</td>
+<?php 
+} else if(strstr($Row[0], "productOwnerID") ) {
+$queryu = "SELECT userID, fullName FROM ".$users;
+if (!$Resultu= mysql_db_query($DBName, $queryu, $Link)) {
+         	print "No database connection <br>".mysql_error();
+    } 
+?>
+<select name="productOwnerID" id="productOwnerID">
+<?php 
+while($Rowu=MySQL_fetch_array($Resultu)) {
+?>
+
+<option value="<?php print $Rowu['userID'];?>"><?php print $Rowu['fullName'];?></option>
+
+<?php 
+} // end Rowu loop
+?>
+</select>
+<?php 
+}  else { ?>
+<input type="text" name="<?php print $Row[0];?>" id="<?php print $Row[0];?>">
+</td>
+<?php 
+}
+}
+ ?>
+
+</tr>
+<?php
+$i++;
+ } ?>
+
+<tr>
+<td></td>
+<td><input type="button" onclick="saveProduct()" value="<?php print $LANG['save'];?>"></td>
+</tr>
+
+</table>
+</center>
